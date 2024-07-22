@@ -140,12 +140,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "https://t3n-bnutty.netlify.app",
     "https://t3nbnutty.netlify.app",
-    "http://3.19.74.24:8000",
+    "http://3.19.74.24",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-    "http://3.19.74.24:8000",
+    "http://3.19.74.24",
 ]
 
 CORS_ALLOW_METHODS = [
