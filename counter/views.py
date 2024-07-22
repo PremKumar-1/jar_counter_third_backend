@@ -300,31 +300,6 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
-class InventoryViewSet(viewsets.ModelViewSet):
-    queryset = Inventory.objects.all()
-    serializer_class = InventorySerializer
-
-    def create(self, request, *args, **kwargs):
-        inventory_data = request.data if isinstance(request.data, list) else [request.data]
-        response_data = []
-        for item in inventory_data:
-            product_name = item.get('product_name')
-            quantity = item.get('quantity')
-            try:
-                inventory_item, created = Inventory.objects.update_or_create(
-                    product_name=product_name,
-                    defaults={'quantity': quantity}
-                )
-                response_data.append({
-                    'product_name': inventory_item.product_name,
-                    'quantity': inventory_item.quantity,
-                    'status': 'created' if created else 'updated'
-                })
-            except Exception as e:
-                logger.error(f"Error updating/creating inventory: {str(e)}")
-                return Response({'status': 'error', 'message': str(e)}, status=400)
-        return Response(response_data, status=201)
-
 class JarCountViewSet(viewsets.ModelViewSet):
     queryset = JarCount.objects.all()
     serializer_class = JarCountSerializer
@@ -387,40 +362,6 @@ class JarCountViewSet(viewsets.ModelViewSet):
             logger.error(f"Error in aggregate: {str(e)}")
             return Response({'error': str(e)}, status=500)
 
-    @action(detail=False, methods=['post'])
-    def update_inventory(self, request):
-        try:
-            count = int(request.data.get('count'))
-            shift = request.data.get('shift')
-            inventory_id = request.data.get('inventory_id')
-
-            inventory = Inventory.objects.get(id=inventory_id)
-
-            depletion_rates = {
-                'Jars': 1,
-                'Lids': 1,
-                'Labels': 1,
-                'Sugar': 0.077,
-                'Salt': 0.011,
-                'Soy': 0.031,
-                'Peanuts': 1.173,
-                'Boxes': 1/12
-            }
-
-            required_quantity = count * depletion_rates[inventory.product_name]
-            if inventory.quantity < required_quantity:
-                return Response({'status': 'error', 'message': f'Insufficient {inventory.product_name}'})
-
-            inventory.quantity -= required_quantity
-            inventory.save()
-
-            jar_count = JarCount.objects.create(inventory=inventory, count=count, shift=shift)
-
-            return Response({'status': 'success', 'message': 'Inventory updated and jars counted'})
-        except Exception as e:
-            logger.error(f"Error in update_inventory: {str(e)}")
-            return Response({'status': 'error', 'message': str(e)}, status=400)
-        
 @csrf_exempt
 def update_jar_count(request):
     if request.method == 'POST':
@@ -438,23 +379,7 @@ def update_jar_count(request):
                 else:
                     timestamp = timestamp.astimezone(central)
 
-            depletion_rates = {
-                'Jars': 1,
-                'Lids': 1,
-                'Labels': 1,
-                'Sugar': 0.077,
-                'Salt': 0.011,
-                'Soy': 0.031,
-                'Peanuts': 1.173,
-                'Boxes': 1/12
-            }
-
             if jar_count is not None and shift:
-                for item, rate in depletion_rates.items():
-                    inventory_item, created = Inventory.objects.get_or_create(product_name=item, defaults={'quantity': 0})
-                    inventory_item.quantity -= jar_count * rate
-                    inventory_item.save()
-
                 jar_count_instance = JarCount.objects.create(
                     count=jar_count,
                     shift=shift,

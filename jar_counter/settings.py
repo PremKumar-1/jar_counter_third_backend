@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-!mb08-lhfb3pxc)sl)i!_!4&kc4bl$a^70dmj*40v%85ywwkn$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*','0.0.0.0', '127.0.0.1', 'localhost', '192.168.40.57', '3.21.185.97']
+ALLOWED_HOSTS = ['*','0.0.0.0', '127.0.0.1', 'localhost', '192.168.40.57', '3.19.74.24']
 
 
 # Application definition
@@ -82,10 +82,10 @@ ASGI_APPLICATION = 'jar_counter.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydbcluster',  # Replace with your database name
+        'NAME': 'boxer-database',  # Replace with your database name
         'USER': 'postgres',  # Replace with your RDS master username
         'PASSWORD': 't3n-bnutty',  # Replace with your RDS master password
-        'HOST': 'mydbcluster.cpmemmykkgbl.us-east-2.rds.amazonaws.com',  # Replace with your RDS endpoint
+        'HOST': 'boxer-database.cpmemmykkgbl.us-east-2.rds.amazonaws.com',  # Replace with your RDS endpoint
         'PORT': '5432',  # The default PostgreSQL port
     }
 }
@@ -141,12 +141,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "https://t3n-bnutty.netlify.app",
     "https://t3nbnutty.netlify.app",
-    "http://3.21.185.97:8000",
+    "http://3.19.74.24:8000",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-    "http://3.21.185.97:8000",
+    "http://3.19.74.24:8000",
 ]
 
 CORS_ALLOW_METHODS = [
