@@ -291,8 +291,8 @@ import json
 from django.utils.dateparse import parse_date
 from django.db.models import Sum, Q
 from datetime import datetime, timedelta
-from .models import JarCount, Inventory
-from .serializers import JarCountSerializer, InventorySerializer
+from .models import JarCount
+from .serializers import JarCountSerializer
 import logging
 from .pagination import RelativeUrlPagination
 import pytz
