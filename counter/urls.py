@@ -7,5 +7,5 @@ router.register(r'jarcounts', JarCountViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('third_update_jar_count/', update_jar_count, name='third_update_jar_count'),
+    path('third_update_jar_count/', third_update_jar_count, name='third_update_jar_count'),
 ]
