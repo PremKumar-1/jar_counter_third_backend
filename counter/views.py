@@ -363,7 +363,7 @@ class JarCountViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=500)
 
 @csrf_exempt
-def update_jar_count(request):
+def third_update_jar_count(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
