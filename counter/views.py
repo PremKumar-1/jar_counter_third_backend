@@ -406,7 +406,7 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateparse import parse_date
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from datetime import datetime, timedelta, time
 from .models import JarCount, ShiftTiming
 from .serializers import JarCountSerializer, ShiftTimingSerializer
@@ -415,6 +415,7 @@ import pytz
 from django.utils import timezone
 import json
 from .pagination import RelativeUrlPagination
+from django.utils.timezone import make_aware
 
 logger = logging.getLogger(__name__)
 
@@ -431,13 +432,19 @@ class JarCountViewSet(viewsets.ModelViewSet):
             if date:
                 shift_timings = ShiftTiming.objects.first()
                 if shift_timings:
-                    shift1_start = datetime.combine(date, shift_timings.shift1_start)
-                    shift2_start = datetime.combine(date, shift_timings.shift2_start)
+                    shift1_start = make_aware(datetime.combine(date, shift_timings.shift1_start))
+                    shift2_start = make_aware(datetime.combine(date, shift_timings.shift2_start))
                 else:
-                    shift1_start = datetime.combine(date, time(8, 0))
-                    shift2_start = datetime.combine(date, time(20, 0))
+                    shift1_start = make_aware(datetime.combine(date, time(8, 0)))
+                    shift2_start = make_aware(datetime.combine(date, time(20, 0)))
 
-                queryset = queryset.filter(timestamp__gte=shift1_start).order_by('timestamp')
+                shift1_end = shift1_start + timedelta(hours=12)  # Assuming 12-hour shifts
+                shift2_end = shift2_start + timedelta(hours=12)  # Assuming 12-hour shifts
+
+                queryset = queryset.filter(
+                    (Q(timestamp__gte=shift1_start) & Q(timestamp__lt=shift1_end)) |
+                    (Q(timestamp__gte=shift2_start) & Q(timestamp__lt=shift2_end))
+                ).order_by('timestamp')
         return queryset
 
     @action(detail=False, methods=['get'])
